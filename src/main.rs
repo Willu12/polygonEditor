@@ -26,7 +26,7 @@ fn main() {
                     return;
                 },
                 Event::MouseButtonReleased { button: _, x, y } => {
-                    let point = Point {x : x, y : y, shape: point::create_point_shape(x,y) };
+                    let point = Point::new(x as f32,y as f32);
                     polygon.points.push(point);
                 },
                 _ => {},
