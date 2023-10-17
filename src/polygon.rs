@@ -2,12 +2,24 @@ use crate::sfml::graphics::RenderTarget;
 use crate::Point;
 use sfml::graphics::*;
 
-
+#[derive(Default)]
 pub struct Polygon<'a> {
     pub points: Vec<Point<'a>>,
 }
 
-impl Polygon<'_> {
+#[derive(Default)]
+pub struct PolygonBuilder<'a> {
+    pub polygon: Polygon<'a>,
+}
+
+impl<'a> PolygonBuilder<'a> {
+
+    pub fn build (mut self) -> Polygon<'a> {
+        return std::mem::replace(&mut self.polygon, Polygon::default());
+    }
+}
+
+impl<'a> Polygon<'a> {
 
     pub fn render(&self, window: &mut RenderWindow) {        
        for point in self.points.iter() {
@@ -24,5 +36,3 @@ impl Polygon<'_> {
         }
     }
 }
-
-
