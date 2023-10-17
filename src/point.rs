@@ -10,8 +10,6 @@ pub struct Point<'a> {
     pub shape:  sfml::graphics::CircleShape<'a>,  
 }
 
-
-
 impl Point<'_> { 
     pub fn new(x: f32, y: f32) -> Self {
         Point {
@@ -22,7 +20,7 @@ impl Point<'_> {
 
     pub fn intersects(&self, point: Vector2f) -> bool {
         let dist = ((self.vertex.position.x - point.x).powi(2) + (self.vertex.position.y - point.y).powi(2)).sqrt();
-        if dist <= 50.0 {return  true } else {return  false }
+        if dist <= 50.0 {return  true} else {return  false}
     }
 }
 

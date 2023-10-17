@@ -16,10 +16,9 @@ fn main() {
         Style::CLOSE,
         &Default::default(),
     );
-   // window.set_vertical_sync_enabled(true);
+   window.set_vertical_sync_enabled(true);
    let mut current_starting_point: Option<Vector2f> = None;
     let mut polygons: Vec::<Polygon> = vec![];
-    //let mut polygon = Polygon {points : Vec::new()};
     let mut polygon_builder = PolygonBuilder::default();
     loop {
         // events
