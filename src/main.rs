@@ -30,22 +30,21 @@ fn main() {
                     return;
                 },
                 Event::MouseMoved { x, y } => {
-                    match find_point_index(x as f32, y as f32, &polygons) {
-                        Some(pointIndex) => {
-                            
-                            
-                            
-                        }
-                        None => { },
+                    match selected_point_index {
+                        Some(index) => {
+                            polygons.get_mut(index.polygon_index).unwrap().points.get_mut(index.point_index).unwrap()
+                            .change_position(x as f32, y as f32)
+                        },
+                        None => {},
                     }
-                }
+                },
                 Event::MouseButtonReleased { button: _, x, y } => {
                     let point = Point::new(x as f32,y as f32);
 
                     match current_starting_point {
                         Some(p) => {
                             if point.intersects(p)   {
-                                polygon_builder.polygon.points.push(Point::new(p.x, p.y));
+                                //polygon_builder.polygon.points.push(Point::new(p.x, p.y));
                                 polygons.push(polygon_builder.build());
                                 polygon_builder = PolygonBuilder::default();
                                 current_starting_point = None;
@@ -53,16 +52,14 @@ fn main() {
                             else {polygon_builder.polygon.points.push(point)}
                         },
                         None => {
-                            //jezeli nie jestesmy w trakcie budowania wielokata to powinnismy sprawdzic czy nie nie chcemy wybrac
-                            //istniejacego juz punktu, by go zaznaczyc
-                            
-                           // let p = find_point(x as f32, y as f32, &mut polygons);
                             match find_point_index(x as f32, y as f32,&polygons) {
                                 Some(p_index) => {
                                     match selected_point_index {
                                         Some(index) => {
                                             polygons.get_mut(index.polygon_index).unwrap().points
                                             .get_mut(index.point_index).unwrap().unselect();
+
+                                        if index == p_index {selected_point_index = None; continue;}
                                     },
                                         None => {},
                                     }
@@ -90,12 +87,6 @@ fn main() {
 
                                 },
                             }
-                            
-
-                            
-                            
-                            
-                            
                         },
                     }
                 },
@@ -108,7 +99,7 @@ fn main() {
         for polygon in polygons.iter() {
             polygon.render(&mut window);
         }
-        polygon_builder.polygon.render(&mut window);
+        polygon_builder.render(&mut window);
 
         window.display();
     }

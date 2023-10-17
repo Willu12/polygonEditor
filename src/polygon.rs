@@ -24,6 +24,21 @@ impl<'a> PolygonBuilder<'a> {
         }
         return std::mem::replace(&mut self.polygon, Polygon::default());
     }
+
+    pub fn render(&self, window: &mut RenderWindow) {        
+        for point in self.polygon.points.iter() {
+             window.draw(&(point.shape));
+         }
+         self.render_lines(window);
+     }
+
+     pub fn render_lines(&self, window:  &mut RenderWindow) {
+        let mut vertex_array = Vec::<Vertex>::new();
+        for point in self.polygon.points.iter() {
+            vertex_array.push(point.vertex);
+        }
+        window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
+    }
 }
 
 impl<'a> Polygon<'a> {
@@ -39,8 +54,12 @@ impl<'a> Polygon<'a> {
         let mut vertex_array = Vec::<Vertex>::new();
         for point in self.points.iter() {
             vertex_array.push(point.vertex);
-            window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
         }
+        match vertex_array.first() {
+            Some(vertex) => {vertex_array.push(vertex.clone())},
+            None => {}
+        }
+        window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
     }
 }
 
