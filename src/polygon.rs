@@ -1,4 +1,4 @@
-use crate::point::PointIndex;
+use crate::point::{PointIndex, self};
 use crate::sfml::graphics::RenderTarget;
 use crate::Point;
 use sfml::graphics::*;
@@ -60,6 +60,10 @@ impl<'a> Polygon<'a> {
             None => {}
         }
         window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
+    }
+
+    pub fn remove_point(&mut self, point_index: usize) {
+        self.points.remove(point_index);
     }
 }
 

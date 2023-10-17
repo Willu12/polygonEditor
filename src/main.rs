@@ -29,6 +29,18 @@ fn main() {
                     window.close();
                     return;
                 },
+                Event::KeyReleased { code, alt, ctrl, shift, system } => {
+                    match code {
+                        Key::D => {
+                            match selected_point_index {
+                                Some(index) => polygons.get_mut(index.polygon_index).unwrap().remove_point(index.point_index),
+                                None => {},
+                            }
+                            selected_point_index = None;
+                        }
+                        _ => {},
+                    }
+                }
                 Event::MouseMoved { x, y } => {
                     match selected_point_index {
                         Some(index) => {
