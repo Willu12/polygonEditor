@@ -104,6 +104,17 @@ impl<'a> Polygon<'a> {
                }
                self.drag_position = Some(Vector2f::new(x,y));
         }
+    }
+
+    pub fn add_point_to_edge(&mut self,edge_start_index: usize, edge_end_index: usize) {
+
+        let mut new_point = Point::new(0.0,0.0);
+        if let Some(v1) = self.points.get(edge_start_index) {
+            if let Some(v2) = self.points.get(edge_end_index) {
+                new_point = Point::new((v1.vertex.position.x + v2.vertex.position.x)/2.0, (v1.vertex.position.y + v2.vertex.position.y)/2.0);
+            }
+        }
+        self.points.insert(edge_end_index, new_point);
         
     }
 }

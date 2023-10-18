@@ -2,12 +2,14 @@ extern crate sfml;
 
 mod point;
 mod polygon;
+mod event_handlers;
 use sfml::graphics::*;
 use sfml::system::Vector2f;
 use sfml::window::*;
 //use sfml::system::*;
 use crate::point::*;
 use crate::polygon::*;
+use crate::event_handlers::*;
 
 fn main() {
     let mut window = RenderWindow::new(
@@ -31,16 +33,8 @@ fn main() {
                     return;
                 },
                 Event::KeyReleased { code, alt:_t, ctrl:_, shift:_, system:_ } => {
-                    match code {
-                        Key::D => {
-                            match selected_point_index {
-                                Some(index) => polygons.get_mut(index.polygon_index).unwrap().remove_point(index.point_index),
-                                None => {},
-                            }
-                            selected_point_index = None;
-                        }
-                        _ => {},
-                    }
+                    (selected_point_index,selected_edge) = released_key_event_handler(code, &mut polygons,
+                         selected_point_index, selected_edge);
                 }
                 Event::MouseMoved { x, y } => {
 
@@ -81,7 +75,6 @@ fn main() {
                                             .get_mut(p_index.point_index).unwrap().select();
 
                                     selected_point_index = Some(p_index);
-           
                                 }
                                 None => {
                                     match selected_point_index {
@@ -90,7 +83,6 @@ fn main() {
                                             .get_mut(index.point_index).unwrap().unselect();
                                     },
                                         None => {                           
-
                                             //sprawdzenie jeszcze czy moze przypadkiem nie krawedz
                                             match find_edge(x as f32, y as f32, &polygons) {
                                                 Some((start_edge, end_edge)) => {
@@ -98,7 +90,8 @@ fn main() {
                                                     match selected_edge {
                                                         Some((old_edge_start, old_edge_end)) => {
                                                             if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                                                                polygon.unselect_edge(old_edge_start.point_index, old_edge_end.point_index)
+                                                                polygon.unselect_edge(old_edge_start.point_index, 
+                                                                    old_edge_end.point_index)
                                                             }
                                                             if (start_edge,end_edge) == (old_edge_start,old_edge_end) {selected_edge = None; continue;}
                                                         },
@@ -106,7 +99,8 @@ fn main() {
                                                     }
                                                     selected_edge = Some((start_edge,end_edge));
                                                     if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                                                        polygon.select_edge(start_edge.point_index, end_edge.point_index,Vector2f::new(x as f32,y as f32))
+                                                        polygon.select_edge(start_edge.point_index, 
+                                                            end_edge.point_index,Vector2f::new(x as f32,y as f32))
                                                     }
                                                 },
                                                 None => {
@@ -114,7 +108,8 @@ fn main() {
                                                     match selected_edge {
                                                         Some((start_edge, end_edge)) => {
                                                             if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                                                                polygon.unselect_edge(start_edge.point_index, end_edge.point_index)
+                                                                polygon.unselect_edge(start_edge.point_index, 
+                                                                    end_edge.point_index)
                                                             }
                                                             selected_edge = None;
                                                         },
@@ -122,9 +117,7 @@ fn main() {
                                                             current_starting_point = Some(Vector2f::new(x as f32, y as f32));
                                                             polygon_builder.polygon.points.push(point);
                                                         },
-                                                    }
-
-                                                    
+                                                    }                        
                                                 },
                                             }         
                                             
