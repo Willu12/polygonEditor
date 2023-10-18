@@ -82,49 +82,22 @@ fn main() {
                                             polygons.get_mut(index.polygon_index).unwrap().points
                                             .get_mut(index.point_index).unwrap().unselect();
                                     },
-                                        None => {                           
-                                            //sprawdzenie jeszcze czy moze przypadkiem nie krawedz
-                                            match find_edge(x as f32, y as f32, &polygons) {
-                                                Some((start_edge, end_edge)) => {
-                                                    
-                                                    match selected_edge {
-                                                        Some((old_edge_start, old_edge_end)) => {
-                                                            if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                                                                polygon.unselect_edge(old_edge_start.point_index, 
-                                                                    old_edge_end.point_index)
-                                                            }
-                                                            if (start_edge,end_edge) == (old_edge_start,old_edge_end) {selected_edge = None; continue;}
-                                                        },
-                                                        None => {},
-                                                    }
-                                                    selected_edge = Some((start_edge,end_edge));
-                                                    if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                                                        polygon.select_edge(start_edge.point_index, 
-                                                            end_edge.point_index,Vector2f::new(x as f32,y as f32))
-                                                    }
-                                                },
-                                                None => {   
-                                                    match selected_edge {
-                                                        Some((start_edge, end_edge)) => {
-                                                            if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                                                                polygon.unselect_edge(start_edge.point_index, 
-                                                                    end_edge.point_index)
-                                                            }
-                                                            selected_edge = None;
-                                                        },
-                                                        None => {
-                                                            let is_polygon_selected = !selected_polygon_index.is_none();
-                                                            selected_polygon_index = find_clicked_polygon(x as f32, y as f32, &polygons, selected_polygon_index);
-                                                            
-                                                            if !is_polygon_selected && selected_polygon_index.is_none() {
-                                                                current_starting_point = Some(Vector2f::new(x as f32, y as f32));
-                                                                polygon_builder.polygon.points.push(point);
-                                                            }
-                                                        },
-                                                    }                        
-                                                },
-                                            }         
+                                        None => {     
                                             
+                                            let is_edge_selected = selected_edge.is_some();
+                                            selected_edge = find_clicked_edge(x as f32, y as f32, &mut polygons, selected_edge);
+                                            
+                                            if is_edge_selected == false && selected_edge.is_none() {
+
+                                                let is_polygon_selected = !selected_polygon_index.is_none();
+                                                selected_polygon_index = find_clicked_polygon(x as f32, y as f32,
+                                                     &polygons, selected_polygon_index);
+
+                                                if !is_polygon_selected && selected_polygon_index.is_none() {
+                                                    current_starting_point = Some(Vector2f::new(x as f32, y as f32));
+                                                    polygon_builder.polygon.points.push(point);
+                                                }
+                                            }
                                         },
                                     }
                                     selected_point_index = None;
