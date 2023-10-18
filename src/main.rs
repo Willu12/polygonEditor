@@ -56,7 +56,6 @@ fn main() {
                             else {polygon_builder.polygon.points.push(point)}
                         },
                         None => {
-                            
                             let was_point_selected = selected_point_index.is_some();
 
                             if selected_edge.is_none() && selected_polygon_index.is_none() {

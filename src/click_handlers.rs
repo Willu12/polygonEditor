@@ -28,15 +28,13 @@ pub fn find_clicked_edge(x: f32, y:f32, polygons: &mut Vec<Polygon>, mut selecte
     
         match find_edge(x as f32, y as f32, &polygons) {
             Some((start_edge, end_edge)) => {
-                match selected_edge {
-                    Some((old_edge_start, old_edge_end)) => {
-                        if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                            polygon.unselect_edge(old_edge_start.point_index, 
-                                old_edge_end.point_index)
-                        }
-                        if (start_edge,end_edge) == (old_edge_start,old_edge_end) {return None}
-                    },
-                    None => {},
+
+                if let Some((old_edge_start,old_edge_end)) = selected_edge  {
+                    if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
+                        polygon.unselect_edge(old_edge_start.point_index, 
+                            old_edge_end.point_index)
+                    }
+                    if (start_edge,end_edge) == (old_edge_start,old_edge_end) {return None}
                 }
                 selected_edge = Some((start_edge,end_edge));
                 if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
@@ -63,14 +61,12 @@ pub fn find_clicked_point(x: f32, y:f32, polygons: &mut Vec<Polygon>, mut select
 
         match find_point_index(x as f32, y as f32, &polygons) {
             Some(p_index) => {
-                match selected_point_index {
-                    Some(index) => {
-                        polygons.get_mut(index.polygon_index).unwrap().points
-                        .get_mut(index.point_index).unwrap().unselect();
+
+                if let Some(index) = selected_point_index {
+                    polygons.get_mut(index.polygon_index).unwrap().points
+                    .get_mut(index.point_index).unwrap().unselect();
 
                     if index == p_index {return None}
-                },
-                    None => {},
                 }
                 polygons.get_mut(p_index.polygon_index).unwrap().points
                         .get_mut(p_index.point_index).unwrap().select();
@@ -78,32 +74,9 @@ pub fn find_clicked_point(x: f32, y:f32, polygons: &mut Vec<Polygon>, mut select
                 selected_point_index = Some(p_index);
             }
             None => {
-                match selected_point_index {
-                    Some(index) => {
-                        polygons.get_mut(index.polygon_index).unwrap().points
+                if let Some(index) = selected_point_index {
+                    polygons.get_mut(index.polygon_index).unwrap().points
                         .get_mut(index.point_index).unwrap().unselect();
-                },
-                None => {},
-                /* 
-                    None => {     
-                        
-                        let is_edge_selected: bool = selected_edge.is_some();
-                        if selected_polygon_index.is_none() {
-                            selected_edge = find_clicked_edge(x as f32, y as f32, &mut polygons, selected_edge);
-                        }
-                        if is_edge_selected == false && selected_edge.is_none() {
-
-                            let is_polygon_selected = !selected_polygon_index.is_none();
-                            selected_polygon_index = find_clicked_polygon(x as f32, y as f32,
-                                 &mut polygons, selected_polygon_index);
-
-                            if !is_polygon_selected && selected_polygon_index.is_none() {
-                                current_starting_point = Some(Vector2f::new(x as f32, y as f32));
-                                polygon_builder.polygon.points.push(point);
-                            }
-                        }
-                    },
-                    */
                 }
                 selected_point_index = None;
             },

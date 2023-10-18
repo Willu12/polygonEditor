@@ -179,7 +179,7 @@ pub fn find_polygon(x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<usize> {
 }
 
 fn check_edge_intersection(edge_start: Vector2f,edge_end: Vector2f, v: Vector2f) -> bool {
-    let z = 3.0;
+    let z = 1.0;
 
     let edge_length = ((edge_start.x - edge_end.x).powi(2) + (edge_start.y - edge_end.y).powi(2)).sqrt();
     let start_v_length = ((edge_start.x - v.x).powi(2) + (edge_start.y - v.y).powi(2)).sqrt();
