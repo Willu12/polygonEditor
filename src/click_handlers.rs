@@ -1,12 +1,16 @@
 use crate::{polygon::*, point::PointIndex};
 use crate::Vector2f;
 
-pub fn find_clicked_polygon(x: f32, y:f32, polygons: &Vec<Polygon>, mut selected_polygon_index: Option<usize>) -> Option<usize> {
+pub fn find_clicked_polygon(x: f32, y:f32, polygons: &mut Vec<Polygon>, mut selected_polygon_index: Option<usize>) -> Option<usize> {
     match find_polygon(x as f32, y as f32, &polygons) {
         Some(polygon_index) => {
             match selected_polygon_index {
                 Some(selected_index) => {
-                    if selected_index == polygon_index {return None}
+                    if selected_index == polygon_index {
+                        
+                        if let Some(polygon) = polygons.get_mut(polygon_index) {polygon.drag_position = None;}
+                        return None
+                    }
                 }
                 None => {
                     selected_polygon_index = Some(polygon_index);
@@ -42,26 +46,13 @@ pub fn find_clicked_edge(x: f32, y:f32, polygons: &mut Vec<Polygon>, mut selecte
                 }
             },
             None => {   
-                match selected_edge {
-                    Some((start_edge, end_edge)) => {
-                        if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
-                            polygon.unselect_edge(start_edge.point_index, 
-                                end_edge.point_index)
-                        }
-                        selected_edge = None;
-                    },
-                    None => {
-                        /* 
-                        let is_polygon_selected = !selected_polygon_index.is_none();
-                        selected_polygon_index = find_clicked_polygon(x as f32, y as f32, &polygons, selected_polygon_index);
-
-                        if !is_polygon_selected && selected_polygon_index.is_none() {
-                            current_starting_point = Some(Vector2f::new(x as f32, y as f32));
-                            polygon_builder.polygon.points.push(point);
-                        }
-                        */
-                    },
-                }                        
+                if let Some((start_edge, end_edge)) = selected_edge {
+                    if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
+                        polygon.unselect_edge(start_edge.point_index, 
+                            end_edge.point_index)
+                    }
+                    selected_edge = None;
+                }                     
             },
         }  
 

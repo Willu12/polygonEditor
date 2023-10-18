@@ -84,14 +84,15 @@ fn main() {
                                     },
                                         None => {     
                                             
-                                            let is_edge_selected = selected_edge.is_some();
-                                            selected_edge = find_clicked_edge(x as f32, y as f32, &mut polygons, selected_edge);
-                                            
+                                            let is_edge_selected: bool = selected_edge.is_some();
+                                            if selected_polygon_index.is_none() {
+                                                selected_edge = find_clicked_edge(x as f32, y as f32, &mut polygons, selected_edge);
+                                            }
                                             if is_edge_selected == false && selected_edge.is_none() {
 
                                                 let is_polygon_selected = !selected_polygon_index.is_none();
                                                 selected_polygon_index = find_clicked_polygon(x as f32, y as f32,
-                                                     &polygons, selected_polygon_index);
+                                                     &mut polygons, selected_polygon_index);
 
                                                 if !is_polygon_selected && selected_polygon_index.is_none() {
                                                     current_starting_point = Some(Vector2f::new(x as f32, y as f32));
