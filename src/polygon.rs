@@ -1,13 +1,15 @@
-use crate::point::{PointIndex, self};
+use crate::point::{PointIndex};
 use crate::sfml::graphics::RenderTarget;
 use crate::Point;
 use sfml::graphics::*;
-use sfml::system::Vector2f;
+use sfml::system::{Vector2f};
+
 
 
 #[derive(Default)]
 pub struct Polygon<'a> {
     pub points: Vec<Point<'a>>,
+    pub drag_position: Option<Vector2f>,
 }
 
 #[derive(Default)]
@@ -65,13 +67,77 @@ impl<'a> Polygon<'a> {
     pub fn remove_point(&mut self, point_index: usize) {
         self.points.remove(point_index);
     }
+
+    pub fn select_edge(&mut self, edge_start_index: usize, edge_end_index: usize, drag_position: Vector2f) {
+       if let Some(v1) = self.points.get_mut(edge_start_index) { 
+        v1.vertex.color = Color::WHITE;
+       }
+
+       if let Some(v2) = self.points.get_mut(edge_end_index) { 
+        v2.vertex.color = Color::WHITE;
+       }
+
+       self.drag_position = Some(drag_position);
+    }
+
+    pub fn unselect_edge(&mut self, edge_start_index: usize, edge_end_index: usize) {
+        if let Some(v1) = self.points.get_mut(edge_start_index) { 
+         v1.vertex.color = Color::GREEN;
+        }
+ 
+        if let Some(v2) = self.points.get_mut(edge_end_index) { 
+         v2.vertex.color = Color::GREEN;
+        }
+    }
+
+    pub fn move_edge(&mut self,edge_start_index: usize, edge_end_index: usize, x:f32, y:f32) {
+
+        if let Some(last_pos) = self.drag_position {
+            if let Some(v1) = self.points.get_mut(edge_start_index) { 
+                v1.vertex.position =  Vector2f::new(v1.vertex.position.x + x - last_pos.x,v1.vertex.position.y + y - last_pos.y);
+                v1.shape.set_position(Vector2f::new(v1.vertex.position.x - v1.shape.radius()/2.0, v1.vertex.position.y - v1.shape.radius()/2.0));
+               }
+        
+               if let Some(v2) = self.points.get_mut(edge_end_index) { 
+                v2.vertex.position =  Vector2f::new(v2.vertex.position.x + x - last_pos.x,v2.vertex.position.y + y - last_pos.y);
+                v2.shape.set_position(Vector2f::new(v2.vertex.position.x - v2.shape.radius()/2.0, v2.vertex.position.y - v2.shape.radius()/2.0));
+               }
+               self.drag_position = Some(Vector2f::new(x,y));
+        }
+        
+    }
 }
 
-pub fn find_point_index<'a> (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<PointIndex> {
+pub fn find_point_index (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<PointIndex> {
     for (polygon_index, polygon) in polygons.iter().enumerate() {
         for (point_index, point) in polygon.points.iter().enumerate() {
             if point.intersects(Vector2f::new(x,y)) {return Some(PointIndex { polygon_index: polygon_index, point_index: point_index })} 
         }
     }
     return  None;
+}
+
+pub fn find_edge (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<(PointIndex,PointIndex)> {
+    for (polygon_index, polygon) in polygons.iter().enumerate() {
+        
+        for (first, second) in polygon.points.iter().enumerate().zip(polygon.points.iter().cycle().skip(1).enumerate()) {
+                        
+            if check_edge_intersection(first.1.vertex.position, second.1.vertex.position, Vector2f::new(x,y))  {
+                return Some((PointIndex::new(polygon_index,first.0),PointIndex::new(polygon_index,(second.0 + 1)%polygon.points.len())));
+            }
+        }
+    }
+    return  None;
+}
+
+fn check_edge_intersection(edge_start: Vector2f,edge_end: Vector2f, v: Vector2f) -> bool {
+    let z = 5.0;
+
+    let edge_length = ((edge_start.x - edge_end.x).powi(2) + (edge_start.y - edge_end.y).powi(2)).sqrt();
+    let start_v_length = ((edge_start.x - v.x).powi(2) + (edge_start.y - v.y).powi(2)).sqrt();
+    let end_v_length = ((v.x - edge_end.x).powi(2) + (v.y - edge_end.y).powi(2)).sqrt();
+
+    
+    if edge_length  >= start_v_length + end_v_length - z {return  true};
+    return false
 }

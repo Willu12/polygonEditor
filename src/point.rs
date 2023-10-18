@@ -15,6 +15,12 @@ pub struct PointIndex {
     pub point_index: usize,
 }
 
+impl PointIndex {
+    pub fn new(polygon_index: usize, point_index:usize) -> Self {
+        PointIndex { polygon_index: polygon_index, point_index: point_index }
+    }
+}
+
 impl<'a> Point<'a> { 
     pub fn new(x: f32, y: f32) -> Self {
         Point {
