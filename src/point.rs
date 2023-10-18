@@ -48,7 +48,7 @@ impl<'a> Point<'a> {
 
     pub fn change_position(&mut self, x:f32, y:f32) {
         self.vertex.position =  Vector2f::new(x,y);
-        self.shape.set_position(Vector2f::new(x - self.shape.radius()/2.0, y - self.shape.radius()/2.0));
+        self.shape.set_position(Vector2f::new(self.vertex.position.x - self.shape.radius()/2.0, self.vertex.position.y - self.shape.radius()/2.0));
     }
 
 

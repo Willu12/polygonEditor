@@ -24,6 +24,7 @@ fn main() {
     let mut polygon_builder = PolygonBuilder::default();
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
+    let mut selected_polygon_index: Option<usize> = None;
     loop {
         // events
         while let Some(ev) = window.poll_event() {
@@ -44,7 +45,14 @@ fn main() {
                     }
 
                     if let Some((edge_start_index,edge_end_index)) = selected_edge {
-                        polygons.get_mut(edge_start_index.polygon_index).unwrap().move_edge(edge_start_index.point_index, edge_end_index.point_index, x as f32, y as f32)
+                        polygons.get_mut(edge_start_index.polygon_index).unwrap().
+                        move_edge(edge_start_index.point_index, edge_end_index.point_index, x as f32, y as f32)
+                    }
+
+                    if let Some(polygon_index) = selected_polygon_index {
+                        if let Some(polygon) = polygons.get_mut(polygon_index) {
+                            polygon.move_polygon(x as f32, y as f32);
+                        }
                     }
                 },
                 Event::MouseButtonReleased { button: _, x, y } => {
@@ -52,7 +60,6 @@ fn main() {
                     match current_starting_point {
                         Some(p) => {
                             if point.intersects(p)   {
-                                //polygon_builder.polygon.points.push(Point::new(p.x, p.y));
                                 polygons.push(polygon_builder.build());
                                 polygon_builder = PolygonBuilder::default();
                                 current_starting_point = None;
@@ -103,8 +110,7 @@ fn main() {
                                                             end_edge.point_index,Vector2f::new(x as f32,y as f32))
                                                     }
                                                 },
-                                                None => {
-                                                    
+                                                None => {   
                                                     match selected_edge {
                                                         Some((start_edge, end_edge)) => {
                                                             if let Some(polygon) = polygons.get_mut(start_edge.polygon_index)  {
@@ -114,8 +120,29 @@ fn main() {
                                                             selected_edge = None;
                                                         },
                                                         None => {
-                                                            current_starting_point = Some(Vector2f::new(x as f32, y as f32));
-                                                            polygon_builder.polygon.points.push(point);
+                                                            match find_polygon(x as f32, y as f32, &polygons) {
+                                                                Some(polygon_index) => {
+                                                                    
+                                                                    match selected_polygon_index {
+                                                                        Some(selected_index) => {
+                                                                            if selected_index == polygon_index {selected_polygon_index = None; continue;}
+                                                                        }
+                                                                        None => {
+                                                                            selected_polygon_index = Some(polygon_index);
+                                                                        },
+                                                                    }
+                                                                },
+                                                                None => {
+                                                                    match selected_polygon_index {
+                                                                       Some(_) => selected_polygon_index = None,
+                                                                       None => {
+                                                                        current_starting_point = Some(Vector2f::new(x as f32, y as f32));
+                                                                        polygon_builder.polygon.points.push(point);
+                                                                       }
+                                                                    }
+
+                                                                },
+                                                            }
                                                         },
                                                     }                        
                                                 },
@@ -123,9 +150,7 @@ fn main() {
                                             
                                         },
                                     }
-                                    
                                     selected_point_index = None;
-
                                 },
                             }
                         },

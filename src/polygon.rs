@@ -3,6 +3,7 @@ use crate::sfml::graphics::RenderTarget;
 use crate::Point;
 use sfml::graphics::*;
 use sfml::system::{Vector2f};
+use geo::*;
 
 
 
@@ -94,13 +95,11 @@ impl<'a> Polygon<'a> {
 
         if let Some(last_pos) = self.drag_position {
             if let Some(v1) = self.points.get_mut(edge_start_index) { 
-                v1.vertex.position =  Vector2f::new(v1.vertex.position.x + x - last_pos.x,v1.vertex.position.y + y - last_pos.y);
-                v1.shape.set_position(Vector2f::new(v1.vertex.position.x - v1.shape.radius()/2.0, v1.vertex.position.y - v1.shape.radius()/2.0));
+                v1.change_position(v1.vertex.position.x + x - last_pos.x,v1.vertex.position.y + y - last_pos.y);
                }
-        
+               
                if let Some(v2) = self.points.get_mut(edge_end_index) { 
-                v2.vertex.position =  Vector2f::new(v2.vertex.position.x + x - last_pos.x,v2.vertex.position.y + y - last_pos.y);
-                v2.shape.set_position(Vector2f::new(v2.vertex.position.x - v2.shape.radius()/2.0, v2.vertex.position.y - v2.shape.radius()/2.0));
+                v2.change_position(v2.vertex.position.x + x - last_pos.x, v2.vertex.position.y + y - last_pos.y);
                }
                self.drag_position = Some(Vector2f::new(x,y));
         }
@@ -116,6 +115,35 @@ impl<'a> Polygon<'a> {
         }
         self.points.insert(edge_end_index, new_point);
         
+    }
+
+    pub fn move_polygon(&mut self,x:f32, y:f32) {
+
+        if let Some(last_pos) = self.drag_position {
+            for point in self.points.iter_mut() {
+                point.change_position(point.vertex.position.x + x - last_pos.x, point.vertex.position.y + y - last_pos.y);
+            }
+        }
+        self.drag_position = Some(Vector2f::new(x,y));
+    }
+
+    fn is_point_inside(&self, point: Vector2f) -> bool {
+        
+        //create segment starting in point ending in end of screen
+        let ray = Line::new(coord!{x: point.x,y : point.y}, coord!{x: point.x, y: 0.0});
+        let mut counter = 0;
+       for (start_point, end_point)  in  self.points.iter().zip(self.points.iter().cycle().skip(1)) {
+
+           let segment = Line::new(coord!{x: start_point.vertex.position.x, y: start_point.vertex.position.y},
+            coord!{x: end_point.vertex.position.x, y: end_point.vertex.position.y});
+
+            match segment.intersects(&ray) {
+                true => {counter += 1;},
+                false => {},
+            }
+        }
+
+        return counter % 2 == 1;
     }
 }
 
@@ -139,6 +167,13 @@ pub fn find_edge (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<(PointIndex,
         }
     }
     return  None;
+}
+
+pub fn find_polygon(x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<usize> {
+    for(polygon_index,polygon) in polygons.iter().enumerate() {
+        if polygon.is_point_inside(Vector2f::new(x,y)) {return Some(polygon_index)};
+    }
+    return None;
 }
 
 fn check_edge_intersection(edge_start: Vector2f,edge_end: Vector2f, v: Vector2f) -> bool {

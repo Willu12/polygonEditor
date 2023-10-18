@@ -2,7 +2,7 @@ use sfml::window::*;
 
 use crate::{point::PointIndex, polygon::Polygon};
 
-pub fn released_key_event_handler(code: Key,polygons: &mut Vec<Polygon> , mut selected_point_index: Option<PointIndex>, mut selected_edge_index: Option<(PointIndex,PointIndex)>)
+pub fn released_key_event_handler(code: Key,polygons: &mut Vec<Polygon> , mut selected_point_index: Option<PointIndex>, selected_edge_index: Option<(PointIndex,PointIndex)>)
  -> (Option<PointIndex>, Option<(PointIndex,PointIndex)> ) {
     match code {
         Key::D => {
