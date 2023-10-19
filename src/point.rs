@@ -51,6 +51,13 @@ impl<'a> Point<'a> {
         self.shape.set_position(Vector2f::new(self.vertex.position.x - self.shape.radius()/2.0, self.vertex.position.y - self.shape.radius()/2.0));
     }
 
+    pub fn align_horizontally(&mut self, y: f32) {
+        self.change_position(self.vertex.position.x, y);
+    }
+    pub fn align_vertically(&mut self, x: f32) {
+        self.change_position(x,self.vertex.position.y);
+    }
+
 
 }
 

@@ -2,6 +2,7 @@ extern crate sfml;
 
 mod point;
 mod polygon;
+mod restrictions;
 mod event_handlers;
 mod click_handlers;
 use sfml::graphics::*;

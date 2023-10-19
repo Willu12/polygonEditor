@@ -1,6 +1,8 @@
-use crate::point::{PointIndex};
+use crate::point::PointIndex;
 use crate::sfml::graphics::RenderTarget;
 use crate::Point;
+use crate::restrictions::*;
+
 use sfml::graphics::*;
 use sfml::system::{Vector2f};
 use geo::*;
@@ -11,6 +13,7 @@ use geo::*;
 pub struct Polygon<'a> {
     pub points: Vec<Point<'a>>,
     pub drag_position: Option<Vector2f>,
+    pub restrictions: Vec<Restriction>,
 }
 
 #[derive(Default)]
@@ -96,14 +99,34 @@ impl<'a> Polygon<'a> {
     pub fn move_edge(&mut self,edge_start_index: usize, edge_end_index: usize, x:f32, y:f32) {
 
         if let Some(last_pos) = self.drag_position {
-            if let Some(v1) = self.points.get_mut(edge_start_index) { 
-                v1.change_position(v1.vertex.position.x + x - last_pos.x,v1.vertex.position.y + y - last_pos.y);
+            if let Some(v1) = self.points.get(edge_start_index) { 
+                self.move_point(edge_start_index,v1.vertex.position.x + x - last_pos.x,v1.vertex.position.y + y - last_pos.y);
                }
                
-               if let Some(v2) = self.points.get_mut(edge_end_index) { 
-                v2.change_position(v2.vertex.position.x + x - last_pos.x, v2.vertex.position.y + y - last_pos.y);
+               if let Some(v2) = self.points.get(edge_end_index) { 
+                self.move_point(edge_end_index, v2.vertex.position.x + x - last_pos.x, v2.vertex.position.y + y - last_pos.y);
                }
                self.drag_position = Some(Vector2f::new(x,y));
+        }
+    }
+
+    pub fn move_point(&mut self, point_index: usize, x:f32, y:f32) {
+        let restrictions = self.get_point_restrictions(point_index);
+
+        if let Some(point) = self.points.get_mut(point_index) {
+            point.change_position(x, y);
+   
+        }
+
+        for restriction in restrictions {
+            let other_point_index = if restriction.start_index == point_index {restriction.end_index} else {restriction.start_index};
+
+            if let Some(other_point) = self.points.get_mut(other_point_index) {
+                match restriction.restriction {
+                    RestrictionKind::Horizontal => other_point.align_horizontally(y),
+                    RestrictionKind::Vertical => other_point.align_vertically(x),
+                }
+            }
         }
     }
 
@@ -144,9 +167,72 @@ impl<'a> Polygon<'a> {
                 false => {},
             }
         }
-
         return counter % 2 == 1;
     }
+
+    pub fn add_restriction(&mut self, restriction: Restriction) {
+
+        if let Some(old_restriction) = self.get_edge_restriction(restriction.start_index, restriction.end_index) {
+            if old_restriction.restriction == restriction.restriction {
+                self.remove_edge_restriction(restriction.start_index, restriction.end_index);
+                return;
+            }
+        }
+
+        if is_restriction_possible(restriction, self) == false {return}
+
+        self.remove_edge_restriction(restriction.start_index, restriction.end_index);
+
+        self.restrictions.push(restriction);
+
+        let start_point_vector = self.points.get(restriction.start_index).unwrap().vertex.position;
+
+        //apply restriction: 
+        match restriction.restriction {
+            RestrictionKind::Horizontal => {
+                if let Some(point) = self.points.get_mut(restriction.end_index) {
+                    point.align_horizontally(start_point_vector.y);
+                }
+            },
+            RestrictionKind::Vertical => {
+                if let Some(point) = self.points.get_mut(restriction.end_index) {
+                    point.align_vertically(start_point_vector.x);
+                }
+            }
+        }        
+
+    }
+
+    pub fn get_point_restrictions(&self, point_index: usize) -> Vec<Restriction> {
+        let mut point_restrictions: Vec<Restriction> = vec![];
+
+        for restriction in self.restrictions.iter() {
+            if restriction.start_index == point_index || restriction.end_index == point_index {
+                point_restrictions.push(restriction.clone());
+            }
+        }
+        return point_restrictions;
+    }
+
+    pub fn get_edge_restriction(&self, start_edge_index: usize, end_edge_index: usize) -> Option<Restriction> {
+
+        for restriction in self.restrictions.iter() {
+            if restriction.start_index == start_edge_index || restriction.end_index == end_edge_index {
+                return Some(restriction.clone());
+            }
+        }
+        return None;
+    }
+
+    pub fn remove_edge_restriction(&mut self, start_edge_index: usize, end_edge_index: usize) {
+        if let Some(restriction) = self.get_edge_restriction(start_edge_index, end_edge_index) {
+            if let Some(restriction_index) = self.restrictions.iter().position(|x| *x == restriction) {
+                self.restrictions.remove(restriction_index);
+                return;
+            }
+        }
+    }
+
 }
 
 pub fn find_point_index (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<PointIndex> {
