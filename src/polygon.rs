@@ -64,7 +64,7 @@ impl<'a> Polygon<'a> {
             window.draw(&(point.shape));
         }
         self.render_lines(window,algorithm);
-        self.render_restrictions(window);
+        self.render_restriction_icons(window);
     }
 
     pub fn render_lines(&self, window:  &mut RenderWindow,algorithm:DrawAlgorithm ) {
@@ -87,7 +87,7 @@ impl<'a> Polygon<'a> {
         }
     }
 
-    pub fn render_restrictions(&self, window: &mut RenderWindow) {
+    pub fn render_restriction_icons(&self, window: &mut RenderWindow) {
         // tutaj trzeba dodac jakies rysowanie tych restrykicji
     }
 
