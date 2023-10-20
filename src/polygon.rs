@@ -1,3 +1,4 @@
+use crate::algorithms::*;
 use crate::point::PointIndex;
 use crate::sfml::graphics::RenderTarget;
 use crate::Point;
@@ -31,41 +32,65 @@ impl<'a> PolygonBuilder<'a> {
         return std::mem::replace(&mut self.polygon, Polygon::default());
     }
 
-    pub fn render(&self, window: &mut RenderWindow) {        
+    pub fn render(&self, window: &mut RenderWindow, algorithm_kind:DrawAlgorithm) {        
         for point in self.polygon.points.iter() {
              window.draw(&(point.shape));
          }
-         self.render_lines(window);
+         self.render_lines(window,algorithm_kind);
      }
 
-     pub fn render_lines(&self, window:  &mut RenderWindow) {
-        let mut vertex_array = Vec::<Vertex>::new();
-        for point in self.polygon.points.iter() {
-            vertex_array.push(point.vertex);
+     pub fn render_lines(&self, window:  &mut RenderWindow, algorithm_kind: DrawAlgorithm) {
+
+        match algorithm_kind {
+            DrawAlgorithm::Library => {
+                let mut vertex_array = Vec::<Vertex>::new();
+                for point in self.polygon.points.iter() {
+                    vertex_array.push(point.vertex);
+                }
+                window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
+                
+            }
+            DrawAlgorithm::Bresenham => {
+                render_lines_bresenham_builder(&self.polygon, window);
+            }
         }
-        window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
+        
+       
     }
 }
 
 impl<'a> Polygon<'a> {
 
-    pub fn render(&self, window: &mut RenderWindow) {        
+    pub fn render(&self, window: &mut RenderWindow, algorithm: DrawAlgorithm) {        
        for point in self.points.iter() {
             window.draw(&(point.shape));
         }
-        self.render_lines(window);
+        self.render_lines(window,algorithm);
+        self.render_restrictions(window);
     }
 
-    pub fn render_lines(&self, window:  &mut RenderWindow) {
-        let mut vertex_array = Vec::<Vertex>::new();
-        for point in self.points.iter() {
-            vertex_array.push(point.vertex);
+    pub fn render_lines(&self, window:  &mut RenderWindow,algorithm:DrawAlgorithm ) {
+
+        match algorithm {
+            DrawAlgorithm::Library => {
+                let mut vertex_array = Vec::<Vertex>::new();
+                for point in self.points.iter() {
+                    vertex_array.push(point.vertex);
+                }
+                match vertex_array.first() {
+                    Some(vertex) => {vertex_array.push(vertex.clone())},
+                    None => {}
+                }
+                window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
+            },
+            DrawAlgorithm::Bresenham => {
+                render_lines_bresenham_polygon(&self, window);
+            }
         }
-        match vertex_array.first() {
-            Some(vertex) => {vertex_array.push(vertex.clone())},
-            None => {}
-        }
-        window.draw_primitives(&vertex_array, PrimitiveType::LINE_STRIP, &RenderStates::default())
+    }
+
+    pub fn render_restrictions(&self, window: &mut RenderWindow) {
+        // tutaj trzeba dodac jakies rysowanie tych restrykicji
     }
 
     pub fn remove_point(&mut self, point_index: usize) {

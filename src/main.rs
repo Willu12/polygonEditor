@@ -4,11 +4,12 @@ mod point;
 mod polygon;
 mod restrictions;
 mod event_handlers;
+mod algorithms;
 mod click_handlers;
+use algorithms::DrawAlgorithm;
 use sfml::graphics::*;
 use sfml::system::Vector2f;
 use sfml::window::*;
-//use sfml::system::*;
 use crate::point::*;
 use crate::polygon::*;
 use crate::event_handlers::*;
@@ -28,6 +29,7 @@ fn main() {
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
     let mut selected_polygon_index: Option<usize> = None;
+    let mut drawing_algorithm: DrawAlgorithm = DrawAlgorithm::Library;
     loop {
         // events
         while let Some(ev) = window.poll_event() {
@@ -37,8 +39,8 @@ fn main() {
                     return;
                 },
                 Event::KeyReleased { code, alt:_t, ctrl:_, shift:_, system:_ } => {
-                    (selected_point_index,selected_edge) = released_key_event_handler(code, &mut polygons,
-                         selected_point_index, selected_edge);
+                    (selected_point_index,selected_edge,drawing_algorithm) = released_key_event_handler(code, &mut polygons,
+                         selected_point_index, selected_edge,drawing_algorithm);
                 }
                 Event::MouseMoved { x, y } => {   
                   mouse_moved_event_handler(x as f32, y as f32, &mut polygons, selected_point_index,
@@ -89,9 +91,9 @@ fn main() {
         window.clear(Color::BLACK);
         
         for polygon in polygons.iter() {
-            polygon.render(&mut window);
+            polygon.render(&mut window,drawing_algorithm);
         }
-        polygon_builder.render(&mut window);
+        polygon_builder.render(&mut window,drawing_algorithm);
 
         window.display();
     }

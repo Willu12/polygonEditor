@@ -57,8 +57,6 @@ impl<'a> Point<'a> {
     pub fn align_vertically(&mut self, x: f32) {
         self.change_position(x,self.vertex.position.y);
     }
-
-
 }
 
 pub fn create_point_shape<'a>(x: f32, y:f32) -> sfml::graphics::CircleShape<'a>  {
