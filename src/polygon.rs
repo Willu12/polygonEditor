@@ -54,8 +54,6 @@ impl<'a> PolygonBuilder<'a> {
                 render_lines_bresenham_builder(&self.polygon, window);
             }
         }
-        
-       
     }
 }
 

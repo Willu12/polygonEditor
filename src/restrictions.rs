@@ -13,7 +13,6 @@ pub struct Restriction {
     pub restriction: RestrictionKind
 }
 
-
 pub fn is_restriction_possible(restriction: Restriction, polygon: &Polygon) -> bool {
     for existing_restriction in polygon.restrictions.iter() {
         if restriction.restriction == existing_restriction.restriction {
