@@ -1,7 +1,8 @@
 
 use sfml::system::Vector2f;
+use crate::restrictions::*;
 
-use crate::{Polygon, polygon::PolygonBuilder, point::Point};
+use crate::{Polygon, polygon::PolygonBuilder, point::Point, restrictions::Restriction};
 
 pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
     let mut polygons: Vec::<Polygon<'a>> = vec![];
@@ -32,17 +33,31 @@ pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
     second_polygon_points.push(Vector2f::new(x_offset_right, 200.0 * scale_factor));  // Bottom-left
     second_polygon_points.push(Vector2f::new(x_offset_right - 200.0 * scale_factor, 225.0 * scale_factor));  // Bottom-left
 
+
+    //dodaj restrykcje do pierwszego
+   
+
+
+
     for point in first_polygon_points {
         polygon_builder.polygon.points.push(Point::new(point.x,point.y));
     }
+
+    polygon_builder.polygon.add_restriction(Restriction { start_index: 1, end_index: 2, restriction: RestrictionKind::Horizontal});
+    polygon_builder.polygon.add_restriction(Restriction { start_index: 5, end_index: 6, restriction: RestrictionKind::Vertical});
     polygons.push(polygon_builder.build());
     polygon_builder = PolygonBuilder::default();
 
     for point in second_polygon_points {
-        polygon_builder.polygon.points.push(Point::new(point.x,point.y));
+        polygon_builder.polygon.points.push(Point::new(point.x,point.y));        
     }
+
+    polygon_builder.polygon.add_restriction(Restriction { start_index: 1, end_index: 2, restriction: RestrictionKind::Vertical});
+    polygon_builder.polygon.add_restriction(Restriction { start_index: 2, end_index: 3, restriction: RestrictionKind::Horizontal});
+
     polygons.push(polygon_builder.build());
 
+    
     return polygons;
 
 }
