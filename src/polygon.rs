@@ -5,7 +5,7 @@ use crate::Point;
 use crate::restrictions::*;
 
 use sfml::graphics::*;
-use sfml::system::{Vector2f};
+use sfml::system::Vector2f;
 use geo::*;
 
 

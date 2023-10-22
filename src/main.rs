@@ -5,8 +5,10 @@ mod polygon;
 mod restrictions;
 mod event_handlers;
 mod algorithms;
+mod sample;
 mod click_handlers;
 use algorithms::DrawAlgorithm;
+use sample::create_sample_polygons;
 use sfml::graphics::*;
 use sfml::system::Vector2f;
 use sfml::window::*;
@@ -30,6 +32,10 @@ fn main() {
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
     let mut selected_polygon_index: Option<usize> = None;
     let mut drawing_algorithm: DrawAlgorithm = DrawAlgorithm::Library;
+
+    polygons = create_sample_polygons();
+
+    
     loop {
         // events
         while let Some(ev) = window.poll_event() {

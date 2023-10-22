@@ -1,4 +1,3 @@
-use geo::algorithm;
 use sfml::window::*;
 use crate::algorithms::DrawAlgorithm;
 use crate::restrictions::*;
