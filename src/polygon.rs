@@ -89,6 +89,43 @@ impl<'a> Polygon<'a> {
 
     pub fn render_restriction_icons(&self, window: &mut RenderWindow) {
         // tutaj trzeba dodac jakies rysowanie tych restrykicji
+        for restriction in self.restrictions.iter() {
+            match restriction.restriction {
+                RestrictionKind::Horizontal => {
+                    let  texture = Texture::from_file("icons/horizontal.png").expect("Failed to load image");
+                    let  mut sprite = Sprite::with_texture(&texture);
+                    sprite.set_scale(Vector2f::new(0.5,0.5));
+                    if let Some(mut middle_point) = self.get_middle_point(restriction.start_index,restriction.end_index) {
+
+                       middle_point.y = middle_point.y + 5.0;
+                        sprite.set_position(middle_point);
+                    }
+                    window.draw(&sprite);
+                }
+                RestrictionKind::Vertical => {
+                    let  texture = Texture::from_file("icons/vertical.png").expect("Failed to load image");
+                    let  mut sprite = Sprite::with_texture(&texture);
+                    sprite.set_scale(Vector2f::new(0.5,0.5));
+                    if let Some(mut middle_point) = self.get_middle_point(restriction.start_index,restriction.end_index) {
+
+                       middle_point.x = middle_point.x + 5.0;
+                       middle_point.y = middle_point.y - 2.0;
+                        sprite.set_position(middle_point);
+                    }
+                    window.draw(&sprite);
+                },
+            }
+        }
+    }
+
+    pub fn get_middle_point(&self, start: usize, end: usize) -> Option<Vector2f> {
+
+        if let Some(start_point) = self.points.get(start) {
+            if let Some(end_point) = self.points.get(end) {
+                return Some(Vector2f::new((start_point.vertex.position.x + end_point.vertex.position.x)/2.0,(start_point.vertex.position.y + end_point.vertex.position.y)/2.0));
+            }
+        }
+        return None;
     }
 
     pub fn remove_point(&mut self, point_index: usize) {

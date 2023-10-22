@@ -26,15 +26,12 @@ fn main() {
     );
     window.set_vertical_sync_enabled(true);
     let mut current_starting_point: Option<Vector2f> = None;
-    let mut polygons: Vec::<Polygon> = vec![];
+    let mut polygons: Vec::<Polygon> = create_sample_polygons();
     let mut polygon_builder = PolygonBuilder::default();
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
     let mut selected_polygon_index: Option<usize> = None;
     let mut drawing_algorithm: DrawAlgorithm = DrawAlgorithm::Library;
-
-    polygons = create_sample_polygons();
-
     
     loop {
         // events

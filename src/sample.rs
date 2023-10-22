@@ -22,8 +22,8 @@ pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
     first_polygon_points.push(Vector2f::new(x_offset + 200.0 * scale_factor, 300.0));  // Right
     first_polygon_points.push(Vector2f::new(x_offset + 200.0 * scale_factor, 400.0 * scale_factor));  // Right-bottom
     first_polygon_points.push(Vector2f::new(x_offset + 100.0 * scale_factor, 450.0 * scale_factor));  // Bottom-center
-    first_polygon_points.push(Vector2f::new(x_offset, 400.0 * scale_factor));  // Bottom-left
-    first_polygon_points.push(Vector2f::new(x_offset - 100.0 * scale_factor, 450.0 * scale_factor));  // Bottom-left-center
+    first_polygon_points.push(Vector2f::new(x_offset, 450.0 * scale_factor));  // Bottom-left
+    first_polygon_points.push(Vector2f::new(x_offset - 100.0 * scale_factor, 530.0 * scale_factor));  // Bottom-left-center
     first_polygon_points.push(Vector2f::new(x_offset - 200.0 * scale_factor, 400.0 * scale_factor));  // Bottom-left
 
     let mut second_polygon_points: Vec<Vector2f> = Vec::with_capacity(7);
@@ -43,7 +43,7 @@ pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
         polygon_builder.polygon.points.push(Point::new(point.x,point.y));
     }
 
-    polygon_builder.polygon.add_restriction(Restriction { start_index: 1, end_index: 2, restriction: RestrictionKind::Horizontal});
+    polygon_builder.polygon.add_restriction(Restriction { start_index: 2, end_index: 3, restriction: RestrictionKind::Horizontal});
     polygon_builder.polygon.add_restriction(Restriction { start_index: 5, end_index: 6, restriction: RestrictionKind::Vertical});
     polygons.push(polygon_builder.build());
     polygon_builder = PolygonBuilder::default();
