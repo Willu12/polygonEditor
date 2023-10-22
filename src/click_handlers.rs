@@ -1,5 +1,16 @@
+use crate::algorithms::AlgorithmButton;
 use crate::{polygon::*, point::PointIndex};
 use crate::Vector2f;
+
+
+pub fn find_clicked_button(x:f32, y:f32,buttons: &Vec<AlgorithmButton>) ->Option<usize> {
+
+    for (index,button) in buttons.iter().enumerate() {
+        let dist = ((button.position.x - x).powi(2) + (button.position.y - y).powi(2)).sqrt();
+        if dist < button.radius + 5.0 {return Some(index)};
+    }
+    return None;
+}
 
 pub fn find_clicked_polygon(x: f32, y:f32, polygons: &mut Vec<Polygon>, mut selected_polygon_index: Option<usize>) -> Option<usize> {
     match find_polygon(x as f32, y as f32, &polygons) {

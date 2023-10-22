@@ -39,13 +39,6 @@ pub fn released_key_event_handler(code: Key,polygons: &mut Vec<Polygon> , mut se
                 }
             }
         }
-        Key::C => {
-            match algorithm {
-                DrawAlgorithm::Bresenham => {algorithm = DrawAlgorithm::Library},
-                DrawAlgorithm::Library => {algorithm = DrawAlgorithm::Bresenham},
-            }
-        }
-
         _ => {},
     }
     return (selected_point_index,selected_edge_index,algorithm);

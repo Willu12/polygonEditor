@@ -12,32 +12,25 @@ pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
     //points of first polygon
     let mut first_polygon_points: Vec<Vector2f> = vec![];
 
-    let scale_factor = 1.0;  // Increase the size by a factor of 2
-    let x_offset = 250.0;  // Move to the right by 200 units
+    let scale_factor = 1.0;  
+    let x_offset = 250.0;  
 
-    let x_offset_right = 500.0;  // Move to the right by 600 units
+    let x_offset_right = 500.0;  
 
-
-    first_polygon_points.push(Vector2f::new(x_offset, 300.0));  // Left center, moved right
-    first_polygon_points.push(Vector2f::new(x_offset + 200.0 * scale_factor, 300.0));  // Right
-    first_polygon_points.push(Vector2f::new(x_offset + 200.0 * scale_factor, 400.0 * scale_factor));  // Right-bottom
-    first_polygon_points.push(Vector2f::new(x_offset + 100.0 * scale_factor, 450.0 * scale_factor));  // Bottom-center
-    first_polygon_points.push(Vector2f::new(x_offset, 450.0 * scale_factor));  // Bottom-left
-    first_polygon_points.push(Vector2f::new(x_offset - 100.0 * scale_factor, 530.0 * scale_factor));  // Bottom-left-center
-    first_polygon_points.push(Vector2f::new(x_offset - 200.0 * scale_factor, 400.0 * scale_factor));  // Bottom-left
+    first_polygon_points.push(Vector2f::new(x_offset, 300.0));  
+    first_polygon_points.push(Vector2f::new(x_offset + 200.0 * scale_factor, 300.0));  
+    first_polygon_points.push(Vector2f::new(x_offset + 200.0 * scale_factor, 400.0 * scale_factor));  
+    first_polygon_points.push(Vector2f::new(x_offset + 100.0 * scale_factor, 450.0 * scale_factor));  
+    first_polygon_points.push(Vector2f::new(x_offset, 450.0 * scale_factor));  
+    first_polygon_points.push(Vector2f::new(x_offset - 100.0 * scale_factor, 530.0 * scale_factor));  
+    first_polygon_points.push(Vector2f::new(x_offset - 200.0 * scale_factor, 400.0 * scale_factor));  
 
     let mut second_polygon_points: Vec<Vector2f> = Vec::with_capacity(7);
-    second_polygon_points.push(Vector2f::new(x_offset_right, 100.0));  // Right center, moved right
-    second_polygon_points.push(Vector2f::new(x_offset_right + 200.0 * scale_factor, 100.0));  // Right
-    second_polygon_points.push(Vector2f::new(x_offset_right + 123.0 * scale_factor, 123.0 * scale_factor));  // Right-bottom
-    second_polygon_points.push(Vector2f::new(x_offset_right, 200.0 * scale_factor));  // Bottom-left
-    second_polygon_points.push(Vector2f::new(x_offset_right - 200.0 * scale_factor, 225.0 * scale_factor));  // Bottom-left
-
-
-    //dodaj restrykcje do pierwszego
-   
-
-
+    second_polygon_points.push(Vector2f::new(x_offset_right, 100.0));  
+    second_polygon_points.push(Vector2f::new(x_offset_right + 200.0 * scale_factor, 100.0));  
+    second_polygon_points.push(Vector2f::new(x_offset_right + 123.0 * scale_factor, 123.0 * scale_factor));  
+    second_polygon_points.push(Vector2f::new(x_offset_right, 200.0 * scale_factor));  
+    second_polygon_points.push(Vector2f::new(x_offset_right - 200.0 * scale_factor, 225.0 * scale_factor));  
 
     for point in first_polygon_points {
         polygon_builder.polygon.points.push(Point::new(point.x,point.y));

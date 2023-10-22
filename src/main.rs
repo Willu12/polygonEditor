@@ -7,6 +7,7 @@ mod event_handlers;
 mod algorithms;
 mod sample;
 mod click_handlers;
+use algorithms::AlgorithmButton;
 use algorithms::DrawAlgorithm;
 use sample::create_sample_polygons;
 use sfml::graphics::*;
@@ -32,7 +33,11 @@ fn main() {
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
     let mut selected_polygon_index: Option<usize> = None;
     let mut drawing_algorithm: DrawAlgorithm = DrawAlgorithm::Library;
-    
+
+    let mut buttons: Vec<AlgorithmButton> = vec![AlgorithmButton::new(Vector2f::new(20.0,40.0),DrawAlgorithm::Bresenham),
+                                            AlgorithmButton::new(Vector2f::new(20.0,60.0),DrawAlgorithm::Library)];
+
+    buttons[0].active = true;
     loop {
         // events
         while let Some(ev) = window.poll_event() {
@@ -51,6 +56,16 @@ fn main() {
                 },
                 Event::MouseButtonReleased { button: _, x, y } => {
                     let point = Point::new(x as f32,y as f32);
+
+                    if let Some(selected_button) = find_clicked_button(x as f32, y as f32, &buttons) {
+                        for button in buttons.iter_mut() {
+                            button.active = false;
+                        }
+                        buttons[selected_button].active = true;
+                        drawing_algorithm = buttons[selected_button].algorithm;
+                        continue;
+                    }
+
 
                     match current_starting_point {
                         Some(p) => {
@@ -95,6 +110,10 @@ fn main() {
         
         for polygon in polygons.iter() {
             polygon.render(&mut window,drawing_algorithm);
+        }
+
+        for button in buttons.iter() {
+            button.render(&mut window);
         }
         polygon_builder.render(&mut window,drawing_algorithm);
 

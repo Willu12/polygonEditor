@@ -1,5 +1,6 @@
+use geo::algorithm;
 use sfml::system::{Vector2i,Vector2f};
-use sfml::graphics::*;
+use sfml::graphics::{*, Transformable};
 
 use crate::polygon::Polygon;
 
@@ -7,6 +8,42 @@ use crate::polygon::Polygon;
 pub enum DrawAlgorithm {
     Library,
     Bresenham,
+}
+
+pub struct AlgorithmButton {
+    pub position: Vector2f,
+    pub active: bool,
+    pub radius: f32,
+    pub algorithm: DrawAlgorithm,
+}
+
+impl AlgorithmButton {
+    pub fn new(position: Vector2f, algorithm: DrawAlgorithm) -> AlgorithmButton {
+        AlgorithmButton { position: position, active: false, radius: 6.0, algorithm: algorithm }
+    }
+
+    pub fn render(&self, window:  &mut RenderWindow) {
+
+        let font = Font::from_file("fonts/Roboto-Regular.ttf").expect("Failed to load font");
+        let mut circle =  CircleShape::default();
+        circle.set_radius(self.radius);
+       
+
+        match self.active {  
+            true => { circle.set_fill_color(Color::GREEN)},
+            false => {circle.set_fill_color(Color::WHITE)},
+        }
+        let text_string = if self.algorithm == DrawAlgorithm::Bresenham {"Bresenham"} else {"Library"};
+
+        let mut text = Text::new(text_string, &font, 16);
+        text.set_fill_color(Color::WHITE);
+        text.set_position(Vector2f::new(self.position.x + self.radius + 10.0, self.position.y - (text.character_size()/2) as f32));
+
+        circle.set_position(Vector2f::new(self.position.x - circle.radius()/2.0, self.position.y - circle.radius()/2.0));
+        window.draw(&circle);
+        window.draw(&text);
+
+    }
 }
 
 pub fn render_lines_bresenham_builder(polygon: &Polygon ,window: &mut RenderWindow) {
