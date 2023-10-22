@@ -1,11 +1,10 @@
 use sfml::window::*;
-use crate::algorithms::DrawAlgorithm;
 use crate::restrictions::*;
 
 use crate::{point::PointIndex, polygon::Polygon, restrictions::Restriction};
 
 pub fn released_key_event_handler(code: Key,polygons: &mut Vec<Polygon> , mut selected_point_index: Option<PointIndex>,
-    selected_edge_index: Option<(PointIndex,PointIndex)>, mut algorithm: DrawAlgorithm) -> (Option<PointIndex>, Option<(PointIndex,PointIndex)>,DrawAlgorithm ) {
+    selected_edge_index: Option<(PointIndex,PointIndex)>, ) -> (Option<PointIndex>, Option<(PointIndex,PointIndex)>) {
     match code {
         Key::D => {
             if let Some(index) = selected_point_index {
@@ -41,7 +40,7 @@ pub fn released_key_event_handler(code: Key,polygons: &mut Vec<Polygon> , mut se
         }
         _ => {},
     }
-    return (selected_point_index,selected_edge_index,algorithm);
+    return (selected_point_index,selected_edge_index);
 }
 
 pub fn mouse_moved_event_handler(x: f32, y:f32,polygons: &mut Vec<Polygon>, selected_point_index: Option<PointIndex>,

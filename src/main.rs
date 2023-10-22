@@ -47,8 +47,8 @@ fn main() {
                     return;
                 },
                 Event::KeyReleased { code, alt:_t, ctrl:_, shift:_, system:_ } => {
-                    (selected_point_index,selected_edge,drawing_algorithm) = released_key_event_handler(code, &mut polygons,
-                         selected_point_index, selected_edge,drawing_algorithm);
+                    (selected_point_index,selected_edge) = released_key_event_handler(code, &mut polygons,
+                         selected_point_index, selected_edge);
                 }
                 Event::MouseMoved { x, y } => {   
                   mouse_moved_event_handler(x as f32, y as f32, &mut polygons, selected_point_index,

@@ -1,4 +1,3 @@
-use geo::algorithm;
 use sfml::system::{Vector2i,Vector2f};
 use sfml::graphics::{*, Transformable};
 
