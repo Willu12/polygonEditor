@@ -1,5 +1,6 @@
 extern crate sfml;
 
+mod polygon_border;
 mod point;
 mod polygon;
 mod restrictions;
@@ -9,6 +10,7 @@ mod sample;
 mod click_handlers;
 use algorithms::AlgorithmButton;
 use algorithms::DrawAlgorithm;
+use polygon_border::render_intersection_points;
 use sample::create_sample_polygons;
 use sfml::graphics::*;
 use sfml::system::Vector2f;
@@ -27,7 +29,7 @@ fn main() {
     );
     window.set_vertical_sync_enabled(true);
     let mut current_starting_point: Option<Vector2f> = None;
-    let mut polygons: Vec::<Polygon> = create_sample_polygons();
+    let mut polygons: Vec::<Polygon> = vec![];//create_sample_polygons();
     let mut polygon_builder = PolygonBuilder::default();
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
@@ -110,6 +112,7 @@ fn main() {
         
         for polygon in polygons.iter() {
             polygon.render(&mut window,drawing_algorithm);
+            render_intersection_points(polygon, &mut window)
         }
 
         for button in buttons.iter() {
