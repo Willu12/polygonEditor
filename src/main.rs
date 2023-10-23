@@ -10,6 +10,7 @@ mod sample;
 mod click_handlers;
 use algorithms::AlgorithmButton;
 use algorithms::DrawAlgorithm;
+use polygon_border::create_extern_border;
 use polygon_border::render_intersection_points;
 use sample::create_sample_polygons;
 use sfml::graphics::*;
@@ -112,7 +113,12 @@ fn main() {
         
         for polygon in polygons.iter() {
             polygon.render(&mut window,drawing_algorithm);
-            render_intersection_points(polygon, &mut window)
+            
+            
+            let border = create_extern_border(&polygon, 20.0,&mut window);
+            border.render(&mut window, drawing_algorithm);
+            
+           // render_intersection_points(&polygon, &mut window)
         }
 
         for button in buttons.iter() {
