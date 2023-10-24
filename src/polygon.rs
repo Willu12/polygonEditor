@@ -29,6 +29,9 @@ impl<'a> PolygonBuilder<'a> {
         for point in self.polygon.points.iter_mut() {
             point.vertex.color = Color::GREEN;
         }
+
+        self.reverse_if_clockwise();
+
         return std::mem::replace(&mut self.polygon, Polygon::default());
     }
 
@@ -38,6 +41,13 @@ impl<'a> PolygonBuilder<'a> {
          }
          self.render_lines(window,algorithm_kind);
      }
+
+
+
+    fn reverse_if_clockwise(&mut self ) {
+        if self.polygon.is_clockwise() {self.polygon.points.reverse()};
+    }
+
 
      pub fn render_lines(&self, window:  &mut RenderWindow, algorithm_kind: DrawAlgorithm) {
 
@@ -65,6 +75,20 @@ impl<'a> Polygon<'a> {
         }
         self.render_lines(window,algorithm);
         self.render_restriction_icons(window);
+        self.render_points_indexes(window);
+
+    }
+
+    fn render_points_indexes(&self, window: &mut RenderWindow) {
+
+        let font = Font::from_file("fonts/Roboto-Regular.ttf").expect("Failed to load font");
+        for (index,point) in self.points.iter().enumerate() {
+            let mut text = Text::new(index.to_string().as_str(), &font, 16);
+            text.set_fill_color(Color::WHITE);
+            text.set_position(Vector2f::new(point.vertex.position.x , point.vertex.position.y));
+    
+            window.draw(&text);
+        }
     }
 
     pub fn render_lines(&self, window:  &mut RenderWindow,algorithm:DrawAlgorithm ) {
@@ -86,6 +110,7 @@ impl<'a> Polygon<'a> {
             }
         }
     }
+
 
     pub fn render_restriction_icons(&self, window: &mut RenderWindow) {
         // tutaj trzeba dodac jakies rysowanie tych restrykicji
@@ -168,6 +193,9 @@ impl<'a> Polygon<'a> {
                }
                self.drag_position = Some(Vector2f::new(x,y));
         }
+
+        self.reverse_if_clockwise();
+
     }
 
     pub fn move_point(&mut self, point_index: usize, x:f32, y:f32) {
@@ -188,6 +216,8 @@ impl<'a> Polygon<'a> {
                 }
             }
         }
+
+        self.reverse_if_clockwise();
     }
 
     pub fn add_point_to_edge(&mut self,edge_start_index: usize, edge_end_index: usize) {
@@ -212,8 +242,7 @@ impl<'a> Polygon<'a> {
         self.drag_position = Some(Vector2f::new(x,y));
     }
 
-    fn is_point_inside(&self, point: Vector2f) -> bool {
-        
+    pub fn is_point_inside(&self, point: &Vector2f) -> bool {
         //create segment starting in point ending in end of screen
         let ray = Line::new(coord!{x: point.x,y : point.y}, coord!{x: point.x, y: 0.0});
         let mut counter = 0;
@@ -292,6 +321,19 @@ impl<'a> Polygon<'a> {
             }
         }
     }
+    pub fn is_clockwise(&self) -> bool {
+        let mut sum: f32 = 0.0;
+        for (start_point, end_point)  in  self.points.iter().zip(self.points.iter().cycle().skip(1)) {
+            sum = sum + (end_point.vertex.position.x - start_point.vertex.position.x) * (end_point.vertex.position.y + start_point.vertex.position.y);
+        }
+        return sum < 0.0;
+    }
+
+    fn reverse_if_clockwise(&mut self ) {
+        if self.is_clockwise() {self.points.reverse()};
+
+        //check for restraints???
+    }
 
 }
 
@@ -319,7 +361,7 @@ pub fn find_edge (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<(PointIndex,
 
 pub fn find_polygon(x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<usize> {
     for(polygon_index,polygon) in polygons.iter().enumerate() {
-        if polygon.is_point_inside(Vector2f::new(x,y)) {return Some(polygon_index)};
+        if polygon.is_point_inside(&Vector2f::new(x,y)) {return Some(polygon_index)};
     }
     return None;
 }

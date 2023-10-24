@@ -115,10 +115,10 @@ fn main() {
             polygon.render(&mut window,drawing_algorithm);
             
             
-            let border = create_extern_border(&polygon, 20.0,&mut window);
-            border.render(&mut window, drawing_algorithm);
+          let border = create_extern_border(&polygon, 20.0);
+           border.render(&mut window, drawing_algorithm);
             
-           // render_intersection_points(&polygon, &mut window)
+           //render_intersection_points(&polygon, &mut window)
         }
 
         for button in buttons.iter() {
