@@ -30,12 +30,15 @@ fn main() {
     );
     window.set_vertical_sync_enabled(true);
     let mut current_starting_point: Option<Vector2f> = None;
-    let mut polygons: Vec::<Polygon> = vec![];//create_sample_polygons();
+    let mut polygons: Vec::<Polygon> = create_sample_polygons();
     let mut polygon_builder = PolygonBuilder::default();
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
     let mut selected_polygon_index: Option<usize> = None;
     let mut drawing_algorithm: DrawAlgorithm = DrawAlgorithm::Library;
+    let mut display_borders: bool = false;
+    let mut offset : f32 = 10.0;
+
 
     let mut buttons: Vec<AlgorithmButton> = vec![AlgorithmButton::new(Vector2f::new(20.0,40.0),DrawAlgorithm::Bresenham),
                                             AlgorithmButton::new(Vector2f::new(20.0,60.0),DrawAlgorithm::Library)];
@@ -50,8 +53,20 @@ fn main() {
                     return;
                 },
                 Event::KeyReleased { code, alt:_t, ctrl:_, shift:_, system:_ } => {
-                    (selected_point_index,selected_edge) = released_key_event_handler(code, &mut polygons,
-                         selected_point_index, selected_edge);
+                    (selected_point_index,selected_edge,display_borders) = released_key_event_handler(code, &mut polygons,
+                         selected_point_index, selected_edge,display_borders);
+                },
+                Event::KeyPressed { code, scan, alt, ctrl, shift, system } => {
+                   match code {
+                        Key::Up => {
+
+                            if offset < 100.0 && display_borders {offset = offset + 1.0};
+                        }
+                        Key::Down => {
+                            if offset > 0.0 && display_borders {offset = offset - 1.0};
+                        }
+                        _ => {},
+                    }
                 }
                 Event::MouseMoved { x, y } => {   
                   mouse_moved_event_handler(x as f32, y as f32, &mut polygons, selected_point_index,
@@ -114,18 +129,17 @@ fn main() {
         for polygon in polygons.iter() {
             polygon.render(&mut window,drawing_algorithm);
             
-            
-          let border = create_extern_border(&polygon, 20.0);
-          border.render_border(&mut window, drawing_algorithm);
-            
-           //render_intersection_points(&polygon, &mut window)
+            if display_borders {
+                let border = create_extern_border(&polygon,offset);
+                border.render_border(&mut window, drawing_algorithm);      
+            }
         }
 
         for button in buttons.iter() {
             button.render(&mut window);
         }
         polygon_builder.render(&mut window,drawing_algorithm);
-
+        
         window.display();
     }
 

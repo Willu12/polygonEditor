@@ -30,7 +30,7 @@ impl<'a> PolygonBuilder<'a> {
             point.vertex.color = Color::GREEN;
         }
 
-        self.reverse_if_clockwise();
+      //  self.reverse_if_clockwise();
 
         return std::mem::replace(&mut self.polygon, Polygon::default());
     }
@@ -161,6 +161,8 @@ impl<'a> Polygon<'a> {
     }
 
     pub fn remove_point(&mut self, point_index: usize) {
+
+        self.remove_point_edges_restrictions(point_index);
         self.points.remove(point_index);
     }
 
@@ -223,8 +225,6 @@ impl<'a> Polygon<'a> {
                 }
             }
         }
-
-        //self.reverse_if_clockwise();
     }
 
     pub fn add_point_to_edge(&mut self,edge_start_index: usize, edge_end_index: usize) {
@@ -235,9 +235,13 @@ impl<'a> Polygon<'a> {
                 new_point = Point::new((v1.vertex.position.x + v2.vertex.position.x)/2.0, (v1.vertex.position.y + v2.vertex.position.y)/2.0);
             }
         }
-        self.points.insert(edge_end_index, new_point);
         
+        self.remove_edge_restriction(edge_start_index, edge_end_index);
+
+        self.points.insert(edge_end_index, new_point);
     }
+
+
 
     pub fn move_polygon(&mut self,x:f32, y:f32) {
 
@@ -250,7 +254,7 @@ impl<'a> Polygon<'a> {
     }
 
     pub fn is_point_inside(&self, point: &Vector2f) -> bool {
-        //create segment starting in point ending in end of screen
+
         let ray = Line::new(coord!{x: point.x,y : point.y}, coord!{x: point.x, y: 0.0});
         let mut counter = 0;
        for (start_point, end_point)  in  self.points.iter().zip(self.points.iter().cycle().skip(1)) {
@@ -328,18 +332,21 @@ impl<'a> Polygon<'a> {
             }
         }
     }
+
+    fn remove_point_edges_restrictions(&mut self, point_index:usize) {
+        
+        let previous_point_index = if point_index == 0 {self.points.len() - 1} else {point_index + 1 };
+        let next_point_index = (point_index + 1) % self.points.len();
+
+        self.remove_edge_restriction(previous_point_index, point_index);
+        self.remove_edge_restriction(point_index, next_point_index);
+    }
     pub fn is_clockwise(&self) -> bool {
         let mut sum: f32 = 0.0;
         for (start_point, end_point)  in  self.points.iter().zip(self.points.iter().cycle().skip(1)) {
             sum = sum + (end_point.vertex.position.x - start_point.vertex.position.x) * (end_point.vertex.position.y + start_point.vertex.position.y);
         }
         return sum < 0.0;
-    }
-
-    fn reverse_if_clockwise(&mut self ) {
-        if self.is_clockwise() {self.points.reverse()};
-
-        //check for restraints???
     }
 
 }

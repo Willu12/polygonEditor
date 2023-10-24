@@ -1,6 +1,7 @@
 
+use sfml::graphics::Transformable;
 use sfml::system::Vector2f;
-use crate::restrictions::*;
+use crate::{restrictions::*, polygon};
 
 use crate::{Polygon, polygon::PolygonBuilder, point::Point, restrictions::Restriction};
 
@@ -38,6 +39,10 @@ pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
 
     polygon_builder.polygon.add_restriction(Restriction { start_index: 2, end_index: 3, restriction: RestrictionKind::Horizontal});
     polygon_builder.polygon.add_restriction(Restriction { start_index: 5, end_index: 6, restriction: RestrictionKind::Vertical});
+
+    polygon_builder.polygon.move_point(2,x_offset + 200.0 * scale_factor + 10.0, 400.0 * scale_factor);
+    polygon_builder.polygon.move_point(5,x_offset - 100.0 * scale_factor, 530.0 * scale_factor);
+
     polygons.push(polygon_builder.build());
     polygon_builder = PolygonBuilder::default();
 
@@ -47,6 +52,10 @@ pub fn create_sample_polygons<'a>() -> Vec<Polygon<'a>> {
 
     polygon_builder.polygon.add_restriction(Restriction { start_index: 1, end_index: 2, restriction: RestrictionKind::Vertical});
     polygon_builder.polygon.add_restriction(Restriction { start_index: 2, end_index: 3, restriction: RestrictionKind::Horizontal});
+
+    polygon_builder.polygon.move_point(2,x_offset_right + 123.0 * scale_factor, 123.0 * scale_factor - 100.0);
+
+   
 
     polygons.push(polygon_builder.build());
 
