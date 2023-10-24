@@ -11,6 +11,7 @@ mod click_handlers;
 use algorithms::AlgorithmButton;
 use algorithms::DrawAlgorithm;
 use polygon_border::create_extern_border;
+use polygon_border::create_naive_border;
 use polygon_border::render_intersection_points;
 use sample::create_sample_polygons;
 use sfml::graphics::*;
@@ -30,7 +31,7 @@ fn main() {
     );
     window.set_vertical_sync_enabled(true);
     let mut current_starting_point: Option<Vector2f> = None;
-    let mut polygons: Vec::<Polygon> = create_sample_polygons();
+    let mut polygons: Vec::<Polygon> = vec![];// create_sample_polygons();
     let mut polygon_builder = PolygonBuilder::default();
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
@@ -130,8 +131,16 @@ fn main() {
             polygon.render(&mut window,drawing_algorithm);
             
             if display_borders {
-                let border = create_extern_border(&polygon,offset);
-                border.render_border(&mut window, drawing_algorithm);      
+                let borders = create_extern_border(&polygon,offset);
+                //let naive_border = create_naive_border(&polygon, offset);
+
+
+                for border in borders {
+                    border.render_border(&mut window, drawing_algorithm);
+                }
+
+               // naive_border.render(&mut window, drawing_algorithm);
+
             }
         }
 

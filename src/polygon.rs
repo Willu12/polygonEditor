@@ -351,6 +351,17 @@ impl<'a> Polygon<'a> {
 
 }
 
+pub fn create_polygon_from_vertices<'a>(vertices: Vec<Vector2f>) -> Polygon<'a> {
+
+    let mut polygon_builder = PolygonBuilder::default();
+
+    for v in vertices {
+        polygon_builder.polygon.points.push(Point::new(v.x,v.y));
+    }
+
+    return polygon_builder.build();
+}
+
 pub fn find_point_index (x: f32, y:f32, polygons:& Vec<Polygon>) -> Option<PointIndex> {
     for (polygon_index, polygon) in polygons.iter().enumerate() {
         for (point_index, point) in polygon.points.iter().enumerate() {

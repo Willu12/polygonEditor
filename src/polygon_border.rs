@@ -1,11 +1,15 @@
 use sfml::graphics::RenderWindow;
+use sfml::system::Vector2;
+use std::thread::current;
 use std::vec;
 use crate::PolygonBuilder;
 
 use crate::Polygon;
 use crate::Vector2f;
 use crate::Point;
+use crate::polygon::create_polygon_from_vertices;
 use crate::sfml::graphics::*;
+use geo::*;
 
 
 
@@ -18,10 +22,77 @@ pub fn render_intersection_points(polygon: &Polygon, window: &mut RenderWindow) 
         let point = Point::new(v.x,v.y);
         window.draw(&point.shape);
     }
-   
+}
+/* 
+fn is_edge_intersecting(polygon: &Polygon, start: usize, end:usize) -> bool {
+
+    let edge = Line::new(coord!{x: polygon.points.get(start).unwrap().vertex.position.x, y: polygon.points.get(start).unwrap().vertex.position.y},
+        coord!{x: polygon.points.get(end).unwrap().vertex.position.x, y: polygon.points.get(end).unwrap().vertex.position.y});
+
+        for (first_start,first_end) in polygon.points.iter().enumerate().zip(polygon.points.iter().cycle().skip(1).enumerate()){
+
+            let segment = Line::new(coord!{x: first_start.1.vertex.position.x, y: first_start.1.vertex.position.y},
+                coord!{x: first_end.1.vertex.position.x, y: first_end.1.vertex.position.y});
+            
+                if  (((first_end.0 + 1) % polygon.points.len()) as i32 - start as i32).abs() <= 1 || (((end + 1) % polygon.points.len()) as i32 - first_start.0 as i32).abs() <= 1{
+                    continue;
+                }
+
+                if edge.intersects(&segment) {return true};
+        }
+        return false;
 }
 
-pub fn create_extern_border<'a>(polygon: &Polygon,offset: f32) -> Polygon<'a> {
+
+pub fn find_border_intersections(polygon: &Polygon) -> Vec<(usize,usize)> {
+    let mut intersections:Vec<(usize,usize)> = vec![];
+
+    for (first_start,first_end) in polygon.points.iter().enumerate().zip(polygon.points.iter().skip(1).enumerate()){
+        for (second_start,second_end) in polygon.points.iter().enumerate().zip(polygon.points.iter().skip(1).enumerate()) {
+
+            let first_segment = Line::new(coord!{x: first_start.1.vertex.position.x, y: first_start.1.vertex.position.y},
+                coord!{x: first_end.1.vertex.position.x, y: first_end.1.vertex.position.y});
+
+            let second_segment = Line::new(coord!{x: second_start.1.vertex.position.x, y: second_start.1.vertex.position.y},
+                coord!{x: second_end.1.vertex.position.x, y: second_end.1.vertex.position.y});
+
+            match first_segment.intersects(&second_segment) {
+                true => {
+                    if  (((first_end.0 + 1) % polygon.points.len()) as i32 - second_start.0 as i32).abs() > 1 && (((second_end.0 + 1) % polygon.points.len()) as i32 - first_start.0 as i32).abs() > 1{
+                        intersections.push((first_start.0,(first_end.0 + 1) % polygon.points.len()));
+                        intersections.push((second_start.0,(second_end.0 + 1) % polygon.points.len()));
+                        
+                    }
+                }
+                false => {}
+            }
+        }
+    }
+
+    return intersections;
+}
+    */
+    pub fn create_naive_border<'a>(polygon: &Polygon,offset: f32) -> Polygon<'a> {
+
+        let  vertices = calculate_all_border_points(&polygon, offset);
+    
+        let mut polygon_builder = PolygonBuilder::default();
+    
+    
+        for point in vertices {
+            polygon_builder.polygon.points.push(Point::new(point.x,point.y));
+        }
+    
+        let mut polygon_border =  polygon_builder.build();    
+        
+        for p in polygon_border.points.iter_mut() {
+            p.vertex.color = Color::YELLOW;
+        }
+        return polygon_border;
+    }
+    
+
+pub fn create_extern_border<'a>(polygon: &Polygon,offset: f32) -> Vec<Polygon<'a>> {
 
     let  vertices = calculate_all_border_points(&polygon, offset);
 
@@ -32,9 +103,72 @@ pub fn create_extern_border<'a>(polygon: &Polygon,offset: f32) -> Polygon<'a> {
         polygon_builder.polygon.points.push(Point::new(point.x,point.y));
     }
 
-    return polygon_builder.build();
+    let polygon_border =  polygon_builder.build();
+    let polygons = fix_border(polygon_border,&polygon);
 
+
+    return polygons;
 }
+
+
+
+fn fix_border<'a>(polygon: Polygon<'a>, base_polygon: &Polygon) -> Vec<Polygon<'a>> {
+
+    let mut polygons: Vec<Polygon> = vec![];
+    let mut new_polygon_vertices: Vec<Vector2f> = vec![];
+    let mut current_vertices: Vec<Vector2f> = vec![];
+    let mut remaining_vertices: Vec<Vector2f> = vec![];
+    let mut base_polygon_vertices: Vec<Vector2f> = vec![];
+
+    for p in base_polygon.points.iter() {
+        base_polygon_vertices.push(p.vertex.position);
+    }
+
+    for point in polygon.points {
+        current_vertices.push(point.vertex.position);
+    }
+
+    while current_vertices.len() > 2 {
+
+        remaining_vertices = vec![];
+        new_polygon_vertices = vec![];
+        new_polygon_vertices.push(current_vertices[0].clone());
+        for v in current_vertices.iter().skip(1) {
+            
+            if is_edge_intersecting(&current_vertices, new_polygon_vertices.last().unwrap().clone(), v.clone()) == false &&   is_edge_intersecting(&base_polygon_vertices, new_polygon_vertices.last().unwrap().clone(), v.clone() ) == false{
+                new_polygon_vertices.push(v.clone());
+            }
+            else {
+                remaining_vertices.push(v.clone());
+            }
+        }
+        if new_polygon_vertices.len() > 2 {
+        polygons.push(create_polygon_from_vertices(new_polygon_vertices.clone()));
+        }
+        current_vertices = remaining_vertices.clone();
+       
+    }
+
+
+
+    return polygons;
+}
+
+fn is_edge_intersecting(polygon: &Vec<Vector2f>, start: Vector2f, end:Vector2f) -> bool {
+
+    let edge = Line::new(coord!{x: start.x, y: start.y}, coord!{x:end.x, y:end.y});
+
+        for (start_point,end_point) in polygon.iter().zip(polygon.iter().cycle().skip(1)){
+
+            let segment = Line::new(coord!{x: start_point.x, y: start_point.y}, coord!{x:end_point.x, y: end_point.y});
+            
+                if *start_point == start || *start_point == end || *end_point == start || *end_point == end {continue;}
+
+                if edge.intersects(&segment) {println!("({} {}),({},{})",start.x,start.y,end.x,end.y);return true};
+        }
+        return false;
+}
+
 
 fn calculate_normal_vector(start: Vector2f, end:Vector2f ) -> Vector2f {
 
