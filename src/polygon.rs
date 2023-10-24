@@ -201,7 +201,7 @@ impl<'a> Polygon<'a> {
                self.drag_position = Some(Vector2f::new(x,y));
         }
 
-        self.reverse_if_clockwise();
+       // self.reverse_if_clockwise();
 
     }
 
@@ -224,7 +224,7 @@ impl<'a> Polygon<'a> {
             }
         }
 
-        self.reverse_if_clockwise();
+        //self.reverse_if_clockwise();
     }
 
     pub fn add_point_to_edge(&mut self,edge_start_index: usize, edge_end_index: usize) {

@@ -54,8 +54,10 @@ fn calculate_normal_vector(start: Vector2f, end:Vector2f ) -> Vector2f {
 pub fn calcluate_border_point(polygon: &Polygon, point_index: usize, offset: f32) -> Vector2f {
 
     let current_point = polygon.points[point_index].vertex.position.clone();
-    let previous_point:Vector2f = if point_index != 0 {polygon.points[point_index - 1 ].vertex.position.clone()} else {polygon.points[polygon.points.len() -1 ].vertex.position.clone()};
-    let next_point = polygon.points[(point_index + 1) % polygon.points.len()].vertex.position.clone();
+    let mut previous_point:Vector2f = if point_index != 0 {polygon.points[point_index - 1 ].vertex.position.clone()} else {polygon.points[polygon.points.len() -1 ].vertex.position.clone()};
+    let mut  next_point = polygon.points[(point_index + 1) % polygon.points.len()].vertex.position.clone();
+
+    if polygon.is_clockwise() {(previous_point,next_point) = (next_point, previous_point)};
 
     let n1 = calculate_normal_vector(previous_point, current_point);
     let n2 = calculate_normal_vector(current_point, next_point);
@@ -73,6 +75,8 @@ pub fn calcluate_border_point(polygon: &Polygon, point_index: usize, offset: f32
 pub fn calculate_all_border_points(polygon: &Polygon, offset: f32) -> Vec<Vector2f> {
 
     let mut border_points: Vec<Vector2f> = vec![];
+
+
     for point_index in 0..polygon.points.len() {
         border_points.push(calcluate_border_point(&polygon, point_index,offset));
     }
