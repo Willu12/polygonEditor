@@ -70,14 +70,21 @@ impl<'a> PolygonBuilder<'a> {
 impl<'a> Polygon<'a> {
 
     pub fn render(&self, window: &mut RenderWindow, algorithm: DrawAlgorithm) {        
-       for point in self.points.iter() {
-            window.draw(&(point.shape));
-        }
-        self.render_lines(window,algorithm);
+
+        self.render_border(window, algorithm);
+
         self.render_restriction_icons(window);
         self.render_points_indexes(window);
-
     }
+
+    pub fn render_border(&self, window: &mut RenderWindow, algorithm: DrawAlgorithm) {        
+        for point in self.points.iter() {
+             window.draw(&(point.shape));
+         }
+         self.render_lines(window,algorithm);
+     }
+
+
 
     fn render_points_indexes(&self, window: &mut RenderWindow) {
 

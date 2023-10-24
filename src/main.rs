@@ -116,7 +116,7 @@ fn main() {
             
             
           let border = create_extern_border(&polygon, 20.0);
-           border.render(&mut window, drawing_algorithm);
+          border.render_border(&mut window, drawing_algorithm);
             
            //render_intersection_points(&polygon, &mut window)
         }
