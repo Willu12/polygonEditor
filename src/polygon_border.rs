@@ -135,12 +135,17 @@ fn fix_border<'a>(polygon: Polygon<'a>, base_polygon: &Polygon) -> Vec<Polygon<'
         new_polygon_vertices.push(current_vertices[0].clone());
         for v in current_vertices.iter().skip(1) {
             
-            if is_edge_intersecting(&current_vertices, new_polygon_vertices.last().unwrap().clone(), v.clone()) == false &&   is_edge_intersecting(&base_polygon_vertices, new_polygon_vertices.last().unwrap().clone(), v.clone() ) == false{
+            if is_edge_intersecting(&current_vertices, new_polygon_vertices.last().unwrap().clone(), v.clone()) == false &&   is_edge_intersecting(&base_polygon_vertices, new_polygon_vertices.last().unwrap().clone(), v.clone() ) == false {
                 new_polygon_vertices.push(v.clone());
             }
             else {
                 remaining_vertices.push(v.clone());
             }
+        }
+
+        while new_polygon_vertices.len() > 0 && (is_edge_intersecting(&current_vertices,new_polygon_vertices.first().unwrap().clone(), new_polygon_vertices.last().unwrap().clone()) || is_edge_intersecting(&base_polygon_vertices,new_polygon_vertices.first().unwrap().clone(), new_polygon_vertices.last().unwrap().clone()))
+        {
+            remaining_vertices.push(new_polygon_vertices.pop().unwrap());
         }
         if new_polygon_vertices.len() > 2 {
         polygons.push(create_polygon_from_vertices(new_polygon_vertices.clone()));

@@ -50,4 +50,11 @@ wtedy mnożąc znormalizowaną sumę wektorów n1 oraz n2 przez L otrzymujemy po
 
 po dodaniu do każdego punktu otrzymujemy punkt odpowiadający mu na otoczce.
 
+tak otrzymaną otoczkę poprawiamy następująco:
+
+zaczynając od pierwszego punktu otoczki łączymy je z następnymi dopóki połączenie ich nie spowoduje samoprzecięcia lub przecięcia z podstawowym wielokątem,
+gdy występuje przecięcie szukamy pierwszego wierzchołka dla którego ono nie wystąpi, ominięte wierzcholki odkładamy do zbioru wierzcholków pozostałych,
+gdy dojdziemy do konca obwódki sprawdzamy czy przypadkiem nasza ostatnia krawędz między (0,n) nie spowoduję przecięcia gdy powoduje odrzucamy ostatni do pozostałych i powtarzamy operację dopóki nie będzie okej. tak otrzymujemy pierwszą składową, operację ponawiamy dla wierzchołków ze zbioru pozostałych dopóki ich ilość nie będzie mniejsza niż 3.
+
+
 
