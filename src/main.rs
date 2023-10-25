@@ -31,7 +31,7 @@ fn main() {
     );
     window.set_vertical_sync_enabled(true);
     let mut current_starting_point: Option<Vector2f> = None;
-    let mut polygons: Vec::<Polygon> = vec![];// create_sample_polygons();
+    let mut polygons: Vec::<Polygon> = create_sample_polygons();
     let mut polygon_builder = PolygonBuilder::default();
     let mut selected_point_index: Option<PointIndex> = None;
     let mut selected_edge: Option<(PointIndex,PointIndex)> = None;
