@@ -63,6 +63,9 @@ impl<'a> PolygonBuilder<'a> {
             DrawAlgorithm::Bresenham => {
                 render_lines_bresenham_builder(&self.polygon, window);
             }
+            DrawAlgorithm::Aliasing => {
+                render_lines_bresenham_builder(&self.polygon, window)
+            }
         }
     }
 }
@@ -114,6 +117,9 @@ impl<'a> Polygon<'a> {
             },
             DrawAlgorithm::Bresenham => {
                 render_lines_bresenham_polygon(&self, window);
+            },
+            DrawAlgorithm::Aliasing => {
+                render_lines_aliasing_polygon(&self,window);
             }
         }
     }

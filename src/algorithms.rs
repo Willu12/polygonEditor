@@ -7,6 +7,7 @@ use crate::polygon::Polygon;
 pub enum DrawAlgorithm {
     Library,
     Bresenham,
+    Aliasing,
 }
 
 pub struct AlgorithmButton {
@@ -32,7 +33,11 @@ impl AlgorithmButton {
             true => { circle.set_fill_color(Color::GREEN)},
             false => {circle.set_fill_color(Color::WHITE)},
         }
-        let text_string = if self.algorithm == DrawAlgorithm::Bresenham {"Bresenham"} else {"Library"};
+        let text_string = match self.algorithm {
+            DrawAlgorithm::Aliasing => {"Aliasing"},
+            DrawAlgorithm::Bresenham => {"Bresenham"},
+            DrawAlgorithm::Library => {"Library"}
+        };
 
         let mut text = Text::new(text_string, &font, 16);
         text.set_fill_color(Color::WHITE);
@@ -137,4 +142,80 @@ pub fn calculate_bresenham(start:Vector2i, end:Vector2i) -> Vec<Vector2i> {
 
     }
     return  calculated_points;
+}
+
+pub fn render_line_aliasing(start: Vector2f, end:Vector2f,window:  &mut RenderWindow) {
+
+    let mut x0 = start.x;
+    let mut y0 = start.y;
+    let mut y1 = end.y;
+    let mut x1 = end.x;
+
+    let steep = (y1 - y0).abs() > (x1 - x0).abs();
+
+    if  steep  {(x0,y0) = (y0,x0); (x1,y1) = (y1,x1)}
+
+    if x0 > x1 {(x0,x1) = (x1,x0); (y0,y1) = (y1,y0)}
+
+
+    let dx = x1 - x0;
+    let dy = y1 - y0;
+
+    let gradient = if dx == 0.0 {1.0} else {dy as f32/dx as f32};
+
+    //
+    let xend = x0.round();
+    let yend = y0 + gradient * (xend -x0);
+    let xpxl1 = xend; // this will be used in the main loop
+
+    let mut intery = yend + gradient;
+
+
+    let xend = x1.round();
+    let xpxl2 = xend ;//this will be used in the main loop
+
+    if steep {
+
+        for x in (xpxl1 + 1.0).floor() as i32 .. (xpxl2 - 1.0).floor() as i32 {
+
+            plot(intery.floor() as i32,x, 1.0 - (intery).fract(), window);
+            plot(1 + intery.floor() as i32,x, (intery).fract(), window);
+            
+            intery = intery + gradient;
+
+        }
+    }
+    else {
+        for x in (xpxl1 + 1.0).floor() as i32 .. (xpxl2 - 1.0).floor() as i32 {
+
+            plot(x,intery.floor() as i32, 1.0 - (intery).fract(), window);
+            plot(x, 1 + intery.floor() as i32, (intery).fract(), window);
+            intery = intery + gradient;
+        }
+    }
+
+    //
+
+}
+
+pub fn plot(x: i32, y: i32, c:f32, window:  &mut RenderWindow) {
+    //plot pixel with birghtenss
+
+    let mut v = Vertex { position: Vector2f::new(x as f32 ,y as f32), color: Color::GREEN, tex_coords : Vector2f::new(0.0,0.0)  };
+
+    v.color.a = (255.0 * c).floor() as u8;
+
+    //println!("{}",c);
+
+    let vectorArray = vec![v];
+
+    window.draw_primitives(&vectorArray, PrimitiveType::POINTS, &RenderStates::default());
+
+}
+pub fn render_lines_aliasing_polygon(polygon: &Polygon,window: &mut RenderWindow) {
+    for (first, second) in polygon.points.iter().zip(polygon.points.iter().cycle().skip(1)) { 
+        let start_pos = first.vertex.position;
+        let end_pos = second.vertex.position;
+        render_line_aliasing(start_pos, end_pos, window);
+    }
 }

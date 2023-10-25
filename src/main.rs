@@ -8,11 +8,10 @@ mod event_handlers;
 mod algorithms;
 mod sample;
 mod click_handlers;
+mod serializer;
 use algorithms::AlgorithmButton;
 use algorithms::DrawAlgorithm;
 use polygon_border::create_extern_border;
-use polygon_border::create_naive_border;
-use polygon_border::render_intersection_points;
 use sample::create_sample_polygons;
 use sfml::graphics::*;
 use sfml::system::Vector2f;
@@ -21,11 +20,12 @@ use crate::point::*;
 use crate::polygon::*;
 use crate::event_handlers::*;
 use crate::click_handlers::*;
+use crate::serializer::*;
 
 fn main() {
     let mut window = RenderWindow::new(
         (800, 600),
-        "Bar mleczny sloneczny - poprosze nervosol",
+        "Polygon Editor",
         Style::CLOSE,
         &Default::default(),
     );
@@ -39,10 +39,12 @@ fn main() {
     let mut drawing_algorithm: DrawAlgorithm = DrawAlgorithm::Library;
     let mut display_borders: bool = false;
     let mut offset : f32 = 10.0;
+    let  max_offset:f32   = 50.0;
 
 
     let mut buttons: Vec<AlgorithmButton> = vec![AlgorithmButton::new(Vector2f::new(20.0,40.0),DrawAlgorithm::Bresenham),
-                                            AlgorithmButton::new(Vector2f::new(20.0,60.0),DrawAlgorithm::Library)];
+                                            AlgorithmButton::new(Vector2f::new(20.0,60.0),DrawAlgorithm::Library),
+                                            AlgorithmButton::new(Vector2f::new(20.0,80.0),DrawAlgorithm::Aliasing)];
 
     buttons[0].active = true;
     loop {
@@ -56,12 +58,22 @@ fn main() {
                 Event::KeyReleased { code, alt:_t, ctrl:_, shift:_, system:_ } => {
                     (selected_point_index,selected_edge,display_borders) = released_key_event_handler(code, &mut polygons,
                          selected_point_index, selected_edge,display_borders);
+
+                    match code {
+                        Key::S  => {
+                            save_polygons(&polygons);
+                        }
+                        Key::L => {
+                            polygons = load_polygons();
+                        }
+                        _ => {},
+                    }
                 },
                 Event::KeyPressed { code, scan, alt, ctrl, shift, system } => {
                    match code {
                         Key::Up => {
 
-                            if offset < 100.0 && display_borders {offset = offset + 1.0};
+                            if offset < max_offset && display_borders {offset = offset + 1.0};
                         }
                         Key::Down => {
                             if offset > 0.0 && display_borders {offset = offset - 1.0};

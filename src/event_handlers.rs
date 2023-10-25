@@ -1,5 +1,6 @@
 use sfml::window::*;
 use crate::restrictions::*;
+use crate::serializer::{save_polygons, load_polygons};
 
 use crate::{point::PointIndex, polygon::Polygon, restrictions::Restriction};
 

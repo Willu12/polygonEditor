@@ -98,7 +98,13 @@ fn fix_border<'a>(polygon: Polygon<'a>, base_polygon: &Polygon) -> Vec<Polygon<'
             remaining_vertices.push(new_polygon_vertices.pop().unwrap());
         }
         if new_polygon_vertices.len() > 2 {
-        polygons.push(create_polygon_from_vertices(new_polygon_vertices.clone()));
+        let mut polygon = create_polygon_from_vertices(new_polygon_vertices.clone());
+        
+        for p in polygon.points.iter_mut() {
+            p.vertex.color = Color::MAGENTA;
+        }
+        polygons.push(polygon);
+
         }
         current_vertices = remaining_vertices.clone();
        

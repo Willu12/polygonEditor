@@ -20,6 +20,7 @@ zmienianie offsetu - strzałki w dół i w górę.
 
 
 # przyjęte założenia
+maksymalny offset wierzcholka przesunietego - 50 px;
 
 # algorytm relacji
 
@@ -58,3 +59,8 @@ gdy dojdziemy do konca obwódki sprawdzamy czy przypadkiem nasza ostatnia krawę
 
 
 
+# zapis do pliku
+
+klawisz S - zapisuje aktualny stan do pliku "zapisz"
+
+Klawisz L - wczytuje stan z pliku "zapisz"
